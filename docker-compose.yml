@@ -1,6 +1,6 @@
 services:
   api-gateway:
-    image: docker pull ghcr.io/scholarx-assesment/api-gateway:latest
+    image: ghcr.io/scholarx-assesment/api-gateway:latest
     ports:
       - "8000:8000"
     environment:
@@ -15,26 +15,97 @@ services:
       - app-network
 
   student-service:
-    image: docker pull ghcr.io/scholarx-assesment/student-service:latest 
+    image: ghcr.io/scholarx-assesment/student-service:latest
     ports:
       - "5001:5001"
+    environment:
+      DB_HOST: student-service-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: student_db
+    depends_on:
+      - student-service-db
+    networks:
+      - app-network
+
+  student-service-db:
+    image: postgres:14
+    container_name: student-service-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: student_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - student_data:/var/lib/postgresql/data
     networks:
       - app-network
 
   class-schedule-service:
-    image: docker pull ghcr.io/scholarx-assesment/class-schedule-service:latest
+    image: ghcr.io/scholarx-assesment/class-schedule-service:latest
     ports:
       - "5002:5002"
+    environment:
+      DB_HOST: class-schedule-service-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: class_schedule_db
+    depends_on:
+      - class-schedule-service-db
+    networks:
+      - app-network
+
+  class-schedule-service-db:
+    image: postgres:14
+    container_name: class-schedule-service-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: class_schedule_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - class_schedule_data:/var/lib/postgresql/data
     networks:
       - app-network
 
   email-sender-service:
-    image: docker pull ghcr.io/scholarx-assesment/notification-service:latest
+    image: ghcr.io/scholarx-assesment/notification-service:latest
     ports:
       - "5003:5003"
+    environment:
+      DB_HOST: notification-service-db
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: notification_db
+    depends_on:
+      - notification-service-db
+    networks:
+      - app-network
+
+  notification-service-db:
+    image: postgres:14
+    container_name: notification-service-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: notification_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - notification_data:/var/lib/postgresql/data
     networks:
       - app-network
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  student_data:
+  class_schedule_data:
+  notification_data:
