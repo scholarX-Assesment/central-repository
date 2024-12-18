@@ -1,5 +1,6 @@
 services:
   api-gateway:
+    container_name: api-gateway
     image: ghcr.io/scholarx-assesment/api-gateway:latest
     ports:
       - "8000:8000"
@@ -10,11 +11,12 @@ services:
     depends_on:
       - student-service
       - class-schedule-service
-      - email-sender-service
+      - notification-service
     networks:
       - app-network
 
   student-service:
+    container_name: student-service
     image: ghcr.io/scholarx-assesment/student-service:latest
     ports:
       - "5001:5001"
@@ -30,8 +32,8 @@ services:
       - app-network
 
   student-service-db:
-    image: postgres:14
     container_name: student-service-db
+    image: postgres:14
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -44,6 +46,7 @@ services:
       - app-network
 
   class-schedule-service:
+    container_name: class-schedule-service
     image: ghcr.io/scholarx-assesment/class-schedule-service:latest
     ports:
       - "5002:5002"
@@ -72,7 +75,8 @@ services:
     networks:
       - app-network
 
-  email-sender-service:
+  notification-service:
+    container_name: notification-service
     image: ghcr.io/scholarx-assesment/notification-service:latest
     ports:
       - "5003:5003"
