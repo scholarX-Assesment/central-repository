@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: schedule-service
+  namespace: scholarx-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: schedule-service
+  template:
+    metadata:
+      labels:
+        app: schedule-service
+    spec:
+      containers:
+        - name: schedule-service
+          image: ghcr.io/scholarx-assesment/schedule-service:latest
+          ports:
+            - containerPort: 5002
+          env:
+            - name: SCHEDULE_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: schedule-postgres-secret
+                  key: SCHEDULE_DATABASE_URL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: schedule-service
+  namespace: scholarx-app
+spec:
+  selector:
+    app: schedule-service
+  ports:
+    - protocol: TCP
+      port: 5002
+      targetPort: 5002
+  type: ClusterIP
